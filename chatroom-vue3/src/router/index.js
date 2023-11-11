@@ -6,28 +6,28 @@ const router = createRouter({
     {
       path: '/',
       name: 'login',
-      component: () => import('../views/Login/Login.vue')
+      component: () => import('../views/Login/index.vue')
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('../views/Register/Register.vue')
+      component: () => import('../views/Register/index.vue')
     },
     {
       path: '/layout',
       name: 'layout',
-      component: () => import('../views/Layout/Layout.vue'),
+      component: () => import('../views/Layout/index.vue'),
       redirect: '/layout/contacts',
       children: [
         {
           path: '/layout/chat',
-          name: 'null',
-          component: () => import('../views/Chat/Chat.vue')
+          name: 'chat',
+          component: () => import('../views/Chat/index.vue')
         },
         {
           path: '/layout/contacts',
           name: 'contacts',
-          component: () => import('../views/Contacts/Contacts.vue'),
+          component: () => import('../views/Contacts/index.vue'),
           redirect: '/layout/contacts/null',
           children: [
             {
