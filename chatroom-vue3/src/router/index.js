@@ -42,7 +42,7 @@ const router = createRouter({
                 import('../views/Contacts/components/SearchUserPage.vue')
             },
             {
-              path: '/layout/contacts/userdetails',
+              path: '/layout/contacts/userdetails/:userId',
               name: 'userdetails',
               component: () =>
                 import('../views/Contacts/components/UserDetails.vue')

@@ -13,10 +13,14 @@ const selectUser = (userId) => {
   selectedUser.value = userId
 }
 const buttonClick = () => {
-  router.push({ path: '/layout/contacts/searchuserpage' })
+  router.push('/layout/contacts/searchuserpage')
+  selectedUser.value = ''
 }
 watch(allContactsList, (allContactsList) => {
   console.log(allContactsList)
+})
+watch(selectedUser, (selectedUser) => {
+  if (selectedUser) router.push(`/layout/contacts/userdetails/${selectedUser}`)
 })
 onMounted(() => {
   getContactsList()
@@ -26,7 +30,9 @@ onMounted(() => {
   <div class="contacts">
     <el-container>
       <el-aside class="side">
-        <el-button class="button" @click="buttonClick" size="large" text>Add Friends</el-button>
+        <el-button class="button" @click="buttonClick" size="large" text
+          >Add Friends</el-button
+        >
         <div class="contactList">
           <el-scrollbar>
             <el-card
