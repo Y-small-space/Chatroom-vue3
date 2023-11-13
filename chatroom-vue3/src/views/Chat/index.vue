@@ -1,36 +1,24 @@
 <script setup>
+import { storeToRefs } from 'pinia'
 import { onMounted, ref, watch } from 'vue'
-import axios from 'axios'
-// import { ArrowRight } from '@element-plus/icons-vue'
+import { useAllHistoryStore } from '../../stores/allhistory'
+const allHistoryStore = useAllHistoryStore()
+const { allHistoryList } = storeToRefs(allHistoryStore)
+const { getAllHistoryList } = allHistoryStore
 const userId = localStorage.getItem('userId')
-
-const allhistory = ref()
 const userName = ref([])
 const selectedUser = ref()
-const getAllhistory = () => {
-  axios
-    .get(`http://localhost:4000/api/chatHistory/${userId}`)
-    .then((res) => {
-      allhistory.value = res.data
-    })
-    .catch((error) => {
-      console.log('Axios请求失败：', error)
-    })
-}
+const contactList = ref()
+const input = ref()
 const selectUser = (userId) => {
   selectedUser.value = userId
-  console.log(selectedUser.value)
 }
 
-// const isTure = (item) => {
-//   console.log(item == selectedUser.value ? 'true' : 'false')
-// }
-
 onMounted(async () => {
-  getAllhistory()
+  getAllHistoryList()
 })
 
-watch(allhistory, (allhistory) => {
+watch(allHistoryList, (allhistory) => {
   console.log(allhistory)
   const newUser = []
   allhistory.forEach((item) => {
@@ -50,6 +38,21 @@ watch(allhistory, (allhistory) => {
   })
   userName.value = newUser
 })
+
+watch([selectedUser, allHistoryList], ([selectedUser, allHistoryList]) => {
+  const newContactList = []
+  allHistoryList.forEach((item) => {
+    if (
+      (item.sender_username === userId &&
+        item.receiver_username === selectedUser) ||
+      (item.sender_username === selectedUser &&
+        item.receiver_username === userId)
+    ) {
+      newContactList.push(item)
+    }
+  })
+  contactList.value = newContactList.reverse()
+})
 </script>
 <template>
   <div class="contacts">
@@ -59,8 +62,8 @@ watch(allhistory, (allhistory) => {
           <el-card
             v-for="item in userName"
             :key="item"
-            class="userCard"
-            shadow="false"
+            :class="{ userCard: true, active: selectedUser === item }"
+            shadow="never"
             @click="selectUser(item)"
           >
             <el-avatar class="avatar" :size="40">{{ item[0] }}</el-avatar>
@@ -73,8 +76,35 @@ watch(allhistory, (allhistory) => {
       </el-aside>
       <el-main class="main">
         <el-container>
-          <el-main class="contactList">111</el-main>
-          <el-footer class="input">111</el-footer>
+          <el-main class="contactList">
+            <el-scrollbar max-height="400px">
+              <div class="contactListReverse">
+                <el-card
+                  shadow="never"
+                  :key="item._id"
+                  v-for="item in contactList"
+                  :class="{
+                    userMessage: true,
+                    userMessageActive:
+                      item.sender_username === userId &&
+                      item.receiver_username === item.receiver_username
+                  }"
+                >
+                  {{ item.content }}
+                </el-card>
+              </div>
+            </el-scrollbar>
+          </el-main>
+          <el-footer>
+            <el-input
+              resize="none"
+              class="input"
+              type="textarea"
+              size="large"
+              v-model="input"
+              :rows="7"
+            />
+          </el-footer>
         </el-container>
       </el-main>
     </el-container>
@@ -104,12 +134,20 @@ watch(allhistory, (allhistory) => {
   --el-card-padding: 10px;
 }
 
+.el-footer {
+  --el-footer-padding: 0px;
+}
+
 .userCard {
   width: 100%;
   background-color: transparent;
   border: 0;
   border-radius: 0;
   border-bottom: 1px solid rgb(100, 100, 100, 0.5);
+}
+
+.active {
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
 }
 .avatar {
   float: left;
@@ -118,13 +156,31 @@ watch(allhistory, (allhistory) => {
 .user p:nth-child(1) {
   font-size: 16px;
 }
-.icon {
-  float: left;
-  color: red;
-}
-
 .contactList {
   height: 400px;
   border-bottom: 1px solid black;
+}
+
+.userMessage {
+  width: 500px;
+  word-wrap: break-word;
+  margin-bottom: 10px;
+}
+
+.userMessageActive {
+  float: right;
+}
+
+.contactListReverse {
+  height: 100%;
+  display: flex;
+  flex-direction: column-reverse;
+}
+.input {
+  margin-top: 10px;
+  width: 100%;
+  word-wrap: break-word;
+  scroll-behavior: auto;
+  resize: unset !important;
 }
 </style>

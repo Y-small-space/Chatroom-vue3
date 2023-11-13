@@ -1,12 +1,18 @@
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import axios from 'axios'
 
-export const useCounterStore = defineStore('counter', () => {
-  const count = ref(0)
-  const doubleCount = computed(() => count.value * 2)
-  function increment() {
-    count.value++
+const userId = localStorage.getItem('userId')
+
+export const useAllHistoryStore = defineStore('allhistory', () => {
+  const allHistoryList = ref()
+  const getAllHistoryList = async () => {
+    const res = await axios.get(
+      `http://localhost:4000/api/chatHistory/${userId}`
+    )
+
+    allHistoryList.value = res.data
   }
 
-  return { count, doubleCount, increment }
+  return { allHistoryList, getAllHistoryList }
 })
